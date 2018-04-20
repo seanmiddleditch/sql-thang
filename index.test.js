@@ -79,6 +79,12 @@ describe('sql expander', () => {
             expect(sql).strippedIs('SELECT WHERE ? AND ? ORDER BY')
             expect(params).toEqual(values)
         })
+        test('empty with prefix', () => {
+            const values = []
+            const {sql, params} = SQL.build(SQL.sql`SELECT ${SQL.list(values, {prefix: 'WHERE', join: 'AND', suffix: 'ORDER BY'})}`)
+            expect(sql).strippedIs('SELECT')
+            expect(params).toEqual([])
+        })
     })
 
     describe('map expansion', () => {
@@ -105,6 +111,12 @@ describe('sql expander', () => {
             const {sql, params} = SQL.build(SQL.sql`SELECT ${SQL.keyed(object, {prefix: 'WHERE', join: 'AND', suffix: 'ORDER BY', sep: '=='})}`)
             expect(sql).strippedIs('SELECT WHERE ?? == ? AND ?? == ? ORDER BY')
             expect(params).toEqual(['foo', 1, 'bar', 2])
+        })
+        test('empty with prefix', () => {
+            const object = {}
+            const {sql, params} = SQL.build(SQL.sql`SELECT ${SQL.keyed(object, {prefix: 'WHERE', join: 'AND', suffix: 'ORDER BY', sep: '=='})}`)
+            expect(sql).strippedIs('SELECT')
+            expect(params).toEqual([])
         })
     })
 

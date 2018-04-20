@@ -38,7 +38,7 @@ const list = (arr, opt = {}) => {
     const suffix = opt.suffix || ''
     return ctx => {
         const sql = arr.map(val => bind(val)(ctx)).join(` ${join} `)
-        return `${prefix} ${sql} ${suffix}`
+        return sql !== '' ? `${prefix} ${sql} ${suffix}` : ''
     }
 }
 
@@ -52,7 +52,7 @@ const keyed = (obj, opt = {}) => {
             .filter(key => typeof obj[key] !== 'undefined')
             .map(key => `${ctx.personality.ident(key, ctx)} ${sep} ${bind(obj[key])(ctx)}`)
             .join(` ${join } `)
-        return `${prefix} ${sql} ${suffix}`
+        return sql !== '' ? `${prefix} ${sql} ${suffix}` : ''
     }
 }
 
