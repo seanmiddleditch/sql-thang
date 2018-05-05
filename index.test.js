@@ -140,4 +140,19 @@ describe('sql expander', () => {
             expect(params).toEqual([1, 2, 3])
         })
     })
+
+    describe('statement embedding', () => {
+        test('simple embedding', () => {
+            const {sql, params} = SQL.build(SQL.sql`SELECT ${SQL.sql`* FROM`} table`)
+            expect(sql).strippedIs('SELECT * FROM table')
+            expect(params).toEqual([])
+        })
+
+        test('parameter embedding', () => {
+            const values = ['foo', 'bar']
+            const {sql, params} = SQL.build(SQL.sql`SELECT ${SQL.sql`* FROM ${SQL.ident(values[0])}`} WHERE ${values[1]}`)
+            expect(sql).strippedIs('SELECT * FROM ?? WHERE ?')
+            expect(params).toEqual(['foo', 'bar'])
+        })
+    })
 })

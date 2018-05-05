@@ -15,6 +15,8 @@
 // ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF
 // THIS SOFTWARE.
 
+class SQL extends Array {}
+
 const defaults = {
     ident: (id, ctx) => (ctx.params.push(id), '??'),
     value: (val, ctx) => (ctx.params.push(val), '?')
@@ -29,8 +31,13 @@ const ident = id =>
 const value = val =>
     ctx => ctx.personality.value(val, ctx)
 
+const embed = sql =>
+    ctx => sql.map(part => part(ctx)).join(' ')
+
 const bind = exp =>
-    exp instanceof Function ? exp : value(exp)
+    exp instanceof Function ? exp :
+    exp instanceof SQL ? embed(exp) :
+    value(exp)
 
 const list = (arr, opt = {}) => {
     const join = opt.join || ','
@@ -62,12 +69,12 @@ const build = (stmt, personality = defaults) => {
         params,
         personality
     }
-    const sql = stmt.map(part => part(ctx)).join(' ')
+    const sql = embed(stmt)(ctx)
     return {sql, params}
 }
 
 const sql = (strings, ...exp) => {
-    const stmt = []
+    const stmt = new SQL()
     strings.forEach((str, idx) => {
         stmt.push(literal(str))
         if (idx < exp.length)
@@ -83,5 +90,6 @@ module.exports = {
     list,
     keyed,
     build,
-    sql
+    sql,
+    SQL
 }
