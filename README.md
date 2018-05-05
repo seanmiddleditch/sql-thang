@@ -30,14 +30,16 @@ const query = build(sql`SELECT * FROM mytable WHERE foo=${value}`)
 // query.params -- [12345]
 ```
 
-Note that the return value of the `sql` function is just an array. This is intentional, allow results to be concatenated to form SQL statements.
+Note that the return value of the `sql` function is a special type of array using the `SQL` constructor. This allows safe embedding of SQL statements with proper escaping.
 
 ```javascript
-const a = build(sql`SELECT * FROM mytable WHERE id=${id}`)
-const b = build(sql`SELECT *`.concat(...sql`FROM mytable WHERE id=${id}`)
-// [a, b].sql --    'SELECT * FROM mytable WHERE id= ? '
-// [a, b].params -- [id]
+const fragment = sql`FROM mytable WHERE id=${id}`
+const complete = build(sql`SELECT * ${fragment} AND title=${title}`)
+// complete.sql --    'SELECT * FROM mytable WHERE id= ? AND title= ?
+// complete.params -- [id, title]
 ```
+
+The `SQL` type can also be detected using the `instanceof` operator for safe DB abstractions. The `SQL` type uses the `Array` prototype chain. This offers some convenience with manipulating, such as being able to `concat` or `map` them, though this should not regularly be needed outside of debugging purposes.
 
 Special Values
 --------------
